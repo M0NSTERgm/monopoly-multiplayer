@@ -1,0 +1,37 @@
+sabang = 150.000
+merauke = 200.000
+
+malang = 400.000
+bukittinggi = 450.000
+jogja = 500.000
+
+solo = 700.000
+semarang = 750.000
+bandung = 800.000
+
+medan = 900.000
+makkasar = 950.000
+surabaya = 1.000.000
+
+palembang = 1.100.000
+balikpapan  = 1.150.000
+denpasar = 1.200.000
+
+tanggerang = 1.300.000
+bekasi = 1.350.000
+dago = 1.400.000
+
+jakarta pusat = 1.500.000
+jakarta selatan = 1.600.000
+surabaya barat = 1.700.000
+
+SCBD Jakarta = 1.900.000
+IKN = 2.000.000
+
+Stasiun KAI = 1.500.000
+Pdam = 500.000
+Pln = 600.000
+Spbu = 1.200.000
+tanjung priok = 2.000.000
+
+

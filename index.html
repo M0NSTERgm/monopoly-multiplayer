@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monopoly Nusantara Online</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- SDK Firebase Compat -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+<body>
+
+    <!-- LOBBY MENU (TAMPILAN AWAL SEBELUM MASUK GAME) -->
+    <div id="lobby-screen">
+        <div class="lobby-card">
+            <h1 class="lobby-title">MONOPOLY NUSANTARA</h1>
+            <p class="lobby-subtitle">Mainkan Game Monopoly Indonesia bersama Teman</p>
+
+            <!-- OPSI PILIHAN MASUK ROOM -->
+            <div id="lobby-options" class="lobby-section">
+                <div class="input-group">
+                    <label for="player-name-input">Nama Anda:</label>
+                    <input type="text" id="player-name-input" placeholder="Masukkan nama..." value="Pemain 1" maxlength="12">
+                </div>
+
+                <div class="lobby-buttons">
+                    <button id="btn-create-room" onclick="buatRoom()">🏠 Buat Room Baru (Host)</button>
+                </div>
+
+                <div class="divider"><span>ATAU GABUNG ROOM</span></div>
+
+                <div class="join-box">
+                    <input type="text" id="join-code-input" placeholder="Kode Undangan (8 Digit)" maxlength="8" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                    <button id="btn-join-room" onclick="gabungRoom()">🚀 Gabung</button>
+                </div>
+            </div>
+
+            <!-- RUANG TUNGGU -->
+            <div id="room-waiting" class="lobby-section hidden">
+                <div class="room-code-badge">
+                    <span>KODE ROOM UNDANGAN:</span>
+                    <h2 id="display-room-code">--------</h2>
+                </div>
+
+                <div class="room-players-box">
+                    <h3>Daftar Pemain dalam Room (<span id="player-count">0</span>/4):</h3>
+                    <div id="room-players-list"></div>
+                </div>
+
+                <button id="btn-add-bot" onclick="tambahPemainManual()">➕ Tambah Pemain (Max 4)</button>
+
+                <div class="room-actions">
+                    <button id="btn-start-game" onclick="mulaiGame()" disabled>🎮 Mulai Permainan</button>
+                    <button id="btn-leave-room" onclick="keluarLobby()">🚪 Keluar Room</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ARENA GAME (3 KOLOM: PANEL KIRI, PAPAN TENGAH, PANEL KANAN) -->
+    <div id="game-screen" class="hidden">
+        <div class="game-container">
+            
+            <!-- PANEL KIRI: DETAIL KARTU TANAH LANDSCAPE -->
+            <div id="left-panel">
+                <h3>Detail Kartu Properti</h3>
+                <div id="card-preview-box">
+                    <p id="empty-card-msg">Klik kartu di inventaris atau mendarat di properti untuk melihat sertifikat tanah.</p>
+                    <img id="active-card-img" src="" alt="Kartu Hak Milik" class="hidden">
+                </div>
+                <!-- Detail Kartu Properti yang Sedang Dilihat -->
+    <div id="active-card-container">
+        <span id="empty-card-msg">Klik kartu di papan/inventaris untuk melihat detail</span>
+        <img id="active-card-img" class="hidden" src="" alt="Detail Kartu">
+    </div>
+    <div id="inventory-box"></div>
+            </div>
+
+            <!-- PAPAN TENGAH -->
+            <div id="board-area">
+                <img src="papan_game.png" alt="Papan Monopoly" id="board-image">
+                <div id="board-grid"></div>
+
+                <!-- POP-UP KHUSUS KESEMPATAN / DANA UMUM -->
+                <div id="popup-modal" class="popup-hidden">
+                    <div class="popup-content">
+                        <h3 id="popup-title">Info Kartu</h3>
+                        <img id="popup-image" src="" alt="Gambar Kartu">
+                        <p id="popup-desc"></p>
+                        <button id="popup-close-btn" onclick="tutupPopup()">Tutup / Lanjut</button>
+                    </div>
+                </div>
+
+                <!-- POP-UP PILIHAN PARKIR BEBAS -->
+                <div id="parkir-modal" class="popup-hidden">
+                    <div class="popup-content">
+                        <h3>🅿️ PARKIR BEBAS</h3>
+                        <p>Pilih hadiah Parkir Bebas Anda:</p>
+                        
+                        <div style="display: flex; flex-direction: column; gap: 10px; margin: 15px 0;">
+                            <button id="btn-klaim-pajak" onclick="pilihOpsiParkir('pajak')" style="background: #10b981; padding: 10px; color: white; font-weight: bold; border: none; border-radius: 6px; cursor: pointer;">
+                                💰 Ambil Kas Pajak (<span id="total-kas-pajak">Rp 0</span>)
+                            </button>
+                            <button onclick="pilihOpsiParkir('teleport')" style="background: #3b82f6; padding: 10px; color: white; font-weight: bold; border: none; border-radius: 6px; cursor: pointer;">
+                                🚀 Pindah Bebas ke Kotak Lain
+                            </button>
+                        </div>
+
+                        <!-- DROPDOWN TELEPORTASI KOTAK -->
+                        <div id="teleport-select-box" class="hidden" style="margin-top: 10px;">
+                            <label style="font-size: 0.8rem; color: #cbd5e1;">Pilih Kotak Tujuan:</label>
+                            <select id="select-kotak-tujuan" style="width: 100%; padding: 8px; margin: 8px 0; border-radius: 6px; background: #0f172a; color: white; border: 1px solid #334155;"></select>
+                            <button onclick="eksekusiTeleport()" style="background: #f59e0b; padding: 8px; color: #0f172a; font-weight: bold; border: none; border-radius: 6px; width: 100%; cursor: pointer;">Konfirmasi Pindah</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- PANEL KANAN: KONTROL & LOG -->
+            <div id="control-panel">
+                <h2>Monopoly Nusantara</h2>
+                
+                <div id="player-status"></div>
+
+                <div id="dice-box">
+                    <div id="dice-result">🎲 🎲</div>
+                    <button id="roll-btn" onclick="lemparDadu()">Lempar Dadu</button>
+                </div>
+
+                <div id="action-box">
+                    <button id="buy-btn" onclick="beliTanah()" disabled>Beli Tanah</button>
+                    <button id="build-ruko-btn" onclick="beliRuko()" disabled>Beli Ruko</button>
+                    <button id="build-hotel-btn" onclick="beliHotel()" disabled>Beli Hotel</button>
+                    <button id="end-turn-btn" onclick="selesaiGiliran()" disabled>Selesai Giliran</button>
+                </div>
+
+                <div id="log-box">
+                    <p class="log-item log-default">• Selamat datang di Monopoly Nusantara!</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

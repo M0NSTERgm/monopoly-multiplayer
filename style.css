@@ -1,0 +1,565 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #0f172a;
+    color: #f8fafc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 15px;
+}
+
+.hidden { display: none !important; }
+
+/* ==========================================
+   TAMPILAN LOBBY MENU
+   ========================================== */
+#lobby-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #090d16;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 200;
+}
+
+.lobby-card {
+    background: #1e293b;
+    border: 2px solid #f59e0b;
+    border-radius: 16px;
+    padding: 30px;
+    width: 90%;
+    max-width: 440px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
+    text-align: center;
+}
+
+.lobby-title { color: #f59e0b; font-size: 1.8rem; font-weight: 800; letter-spacing: 1px; }
+.lobby-subtitle { font-size: 0.85rem; color: #94a3b8; margin-bottom: 25px; }
+
+.lobby-section { display: flex; flex-direction: column; gap: 15px; }
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+    font-size: 0.85rem;
+    color: #cbd5e1;
+}
+
+.input-group input, .join-box input {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid #334155;
+    background: #0f172a;
+    color: white;
+    font-size: 0.95rem;
+    outline: none;
+}
+
+.input-group input:focus, .join-box input:focus { border-color: #f59e0b; }
+
+.lobby-buttons button {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    background: #f59e0b;
+    color: #0f172a;
+    font-weight: bold;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s;
+}
+
+.lobby-buttons button:hover { background: #d97706; transform: translateY(-2px); }
+
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: #64748b;
+    font-size: 0.75rem;
+    margin: 5px 0;
+}
+.divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid #334155; }
+.divider span { padding: 0 10px; }
+
+.join-box { display: flex; gap: 8px; }
+.join-box input { text-align: center; letter-spacing: 2px; font-weight: bold; }
+.join-box button { background: #10b981; color: white; font-weight: bold; border: none; padding: 10px 18px; border-radius: 8px; cursor: pointer; }
+
+.room-code-badge { background: #0f172a; border: 1px dashed #f59e0b; padding: 12px; border-radius: 10px; margin-bottom: 10px; }
+.room-code-badge span { font-size: 0.75rem; color: #94a3b8; }
+.room-code-badge h2 { color: #38bdf8; font-size: 1.8rem; letter-spacing: 4px; margin-top: 4px; }
+
+.room-players-box { text-align: left; background: #0f172a; padding: 12px; border-radius: 10px; border: 1px solid #334155; }
+.room-players-box h3 { font-size: 0.85rem; color: #cbd5e1; margin-bottom: 10px; }
+
+#room-players-list { display: flex; flex-direction: column; gap: 6px; }
+
+.room-player-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #1e293b;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    border: 1px solid #334155;
+}
+
+.room-player-item img { width: 20px; height: 20px; object-fit: contain; }
+
+.host-tag { background: #f59e0b; color: #0f172a; font-size: 0.65rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; margin-left: auto; }
+
+#btn-add-bot { background: #334155; color: #cbd5e1; border: 1px dashed #64748b; padding: 8px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
+
+.room-actions { display: flex; gap: 10px; margin-top: 10px; }
+
+#btn-start-game { flex: 2; background: #10b981; color: white; font-weight: bold; border: none; padding: 12px; border-radius: 8px; cursor: pointer; }
+#btn-start-game:disabled { background: #475569; color: #94a3b8; cursor: not-allowed; }
+
+#btn-leave-room { flex: 1; background: #ef4444; color: white; font-weight: bold; border: none; padding: 12px; border-radius: 8px; cursor: pointer; }
+
+/* ==========================================
+   GAME SCREEN (3 KOLOM UTAMA)
+   ========================================== */
+.game-container {
+    display: flex;
+    gap: 20px;
+    max-width: 1350px;
+    width: 100%;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+/* 1. PANEL KIRI (PREVIEW KARTU TANAH) */
+#left-panel {
+    width: 320px;
+    background: #1e293b;
+    padding: 18px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    border: 1px solid #334155;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-self: stretch;
+}
+
+#left-panel h3 { color: #f59e0b; font-size: 1.1rem; text-align: center; border-bottom: 2px solid #334155; padding-bottom: 8px; }
+
+#card-preview-box {
+    background: #0f172a;
+    border: 1px dashed #334155;
+    border-radius: 10px;
+    padding: 12px;
+    min-height: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+#empty-card-msg { font-size: 0.8rem; color: #64748b; line-height: 1.4; }
+
+#active-card-img {
+    width: 100%;
+    height: auto;
+    max-height: 280px;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    border: 2px solid #f59e0b;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* Styling Box Inventaris Panel Kiri (Tema Gelap) */
+#inventory-box {
+    margin-top: 12px;
+    padding: 12px;
+    background-color: #1e293b; /* Background Gelap (Slate 800) */
+    border: 1px solid #334155;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.inventory-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Custom Scrollbar Tema Gelap untuk Box Inventaris */
+.inventory-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.inventory-list::-webkit-scrollbar-track {
+    background: #0f172a;
+    border-radius: 4px;
+}
+
+.inventory-list::-webkit-scrollbar-thumb {
+    background: #475569;
+    border-radius: 4px;
+}
+
+.inventory-list::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+}
+
+/* Efek Hover pada Item Kartu */
+.inv-card-box {
+    transition: all 0.2s ease-in-out;
+}
+
+.inv-card-box:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+/* 2. PAPAN TENGAH (PRESISI GRID 11x11 DENGAN PROPORSI KOTAK POJOK) */
+#board-area {
+    position: relative;
+    width: 650px;
+    height: 650px;
+    aspect-ratio: 1 / 1;
+    background: #1e293b;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+    overflow: hidden;
+    border: 4px solid #f59e0b;
+    flex-shrink: 0;
+}
+
+#board-image {
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
+
+#board-grid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: grid;
+    /* Grid Presisi: Kotak Pojok (1.35fr), 9 Kotak Tengah (1fr) */
+    grid-template-columns: 1.35fr repeat(9, 1fr) 1.35fr;
+    grid-template-rows: 1.35fr repeat(9, 1fr) 1.35fr;
+    z-index: 2;
+    pointer-events: none;
+}
+
+/* TATA LETAK PRESISI PER SISI KOTAK PAPAN */
+.tile-box {
+    position: relative;
+    display: flex;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    padding: 2px;
+    overflow: hidden;
+}
+
+/* SISI BAWAH (Kotak 1-9): Pita warna di atas, Pion di bawah */
+.tile-side-bottom {
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* SISI KIRI (Kotak 11-19): Pita warna di kanan, Pion di kiri */
+.tile-side-left {
+    flex-direction: row-reverse;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* SISI ATAS (Kotak 21-29): Pita warna di bawah, Pion di atas */
+.tile-side-top {
+    flex-direction: column-reverse;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* SISI KANAN (Kotak 31-39): Pita warna di kiri, Pion di kanan */
+.tile-side-right {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* POJOK (Kotak 0, 10, 20, 30): Pion di tengah */
+.tile-corner {
+    justify-content: center;
+    align-items: center;
+}
+
+/* CONTAINER BANGUNAN (RUKO & HOTEL) */
+.building-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1px;
+    z-index: 3;
+}
+
+.ruko-img { object-fit: contain; transition: all 0.2s ease; }
+.ruko-count-1 .ruko-img { width: 14px; height: 14px; }
+.ruko-count-2 .ruko-img { width: 12px; height: 12px; }
+.ruko-count-3 .ruko-img { width: 10px; height: 10px; }
+.ruko-count-4 .ruko-img { width: 8px; height: 8px; }
+
+.hotel-img {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5));
+}
+
+/* CONTAINER PION PLAYER (DYNAMIC SCALING & TRANSITION) */
+.pion-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2px;
+    z-index: 10;
+}
+
+.pion-img {
+    object-fit: contain;
+    filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.8));
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* 1 Pion Sendiri: Berukuran Besar */
+.pion-count-1 .pion-img {
+    width: 36px;
+    height: 36px;
+    transform: scale(1.05);
+}
+
+/* 2 Pion Berada di Kotak Sama: Mengecil */
+.pion-count-2 .pion-img {
+    width: 22px;
+    height: 22px;
+}
+
+/* 3 Pion Berada di Kotak Sama: Lebih Mengecil */
+.pion-count-3 .pion-img {
+    width: 17px;
+    height: 17px;
+}
+
+/* 4 Pion Berada di Kotak Sama: Paling Kecil */
+.pion-count-4 .pion-img {
+    width: 14px;
+    height: 14px;
+}
+
+#popup-modal, #parkir-modal {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    backdrop-filter: blur(4px);
+    pointer-events: auto;
+}
+
+.popup-hidden { display: none !important; }
+
+.popup-content {
+    background: #1e293b;
+    border: 3px solid #f59e0b;
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    max-width: 300px;
+    width: 90%;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+    animation: popIn 0.3s ease-out;
+}
+
+@keyframes popIn {
+    from { transform: scale(0.7); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.popup-content img {
+    width: 100%;
+    max-height: 200px;
+    object-fit: contain;
+    border-radius: 8px;
+    margin: 10px 0;
+}
+
+#popup-close-btn {
+    background: #f59e0b;
+    color: #0f172a;
+    font-weight: bold;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    width: 100%;
+}
+
+/* 3. PANEL KANAN (KONTROL) */
+#control-panel {
+    width: 340px;
+    background: #1e293b;
+    padding: 18px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    border: 1px solid #334155;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-self: stretch;
+}
+
+#control-panel h2 { color: #f59e0b; font-size: 1.3rem; text-align: center; border-bottom: 2px solid #334155; padding-bottom: 8px; }
+
+#player-status {
+    background: #0f172a;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #334155;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.player-card {
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+    border-radius: 6px;
+    background: #1e293b;
+    border: 1px solid #334155;
+}
+
+.player-card.active-player-card {
+    border: 1px solid #f59e0b;
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.25);
+}
+
+.player-header { display: flex; justify-content: space-between; font-size: 0.85rem; }
+
+.inventory-cards {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    margin-top: 6px;
+    padding-bottom: 4px;
+}
+
+.inventory-hidden { font-size: 0.75rem; color: #64748b; margin-top: 4px; font-style: italic; }
+
+.card-thumb {
+    width: 50px;
+    height: 32px;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid #f59e0b;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.card-thumb:hover { transform: scale(1.15); }
+
+#dice-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    background: #0f172a;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+#dice-result { font-size: 1.4rem; }
+
+#roll-btn {
+    background-color: #f59e0b;
+    color: #0f172a;
+    font-weight: bold;
+    border: none;
+    padding: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    width: 100%;
+}
+
+#action-box { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+
+#action-box button {
+    padding: 8px;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    color: white;
+}
+
+#buy-btn { background-color: #10b981; }
+#build-ruko-btn { background-color: #3b82f6; }
+#build-hotel-btn { background-color: #8b5cf6; }
+#end-turn-btn { background-color: #ef4444; }
+
+#action-box button:disabled, #roll-btn:disabled { background-color: #475569; color: #94a3b8; cursor: not-allowed; }
+
+#log-box {
+    background: #090d16;
+    padding: 10px;
+    border-radius: 8px;
+    height: 150px;
+    overflow-y: auto;
+    font-size: 0.8rem;
+    border: 1px solid #334155;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.log-item { margin: 0; line-height: 1.35; }
+.log-default { color: #cbd5e1; }
+.log-buy     { color: #34d399; font-weight: 600; }
+.log-rent    { color: #f87171; font-weight: 600; }
+.log-build   { color: #60a5fa; font-weight: 600; }
+.log-bonus   { color: #fbbf24; font-weight: 600; }
+.log-turn    { color: #facc15; font-weight: bold; border-top: 1px dashed #334155; padding-top: 4px; margin-top: 4px; }

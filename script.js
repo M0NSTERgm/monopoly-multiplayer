@@ -81,7 +81,6 @@ function buatRoom() {
     });
 }
 
-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
 function gabungRoom() {
     const nameInput = document.getElementById('player-name-input').value.trim() || "Pemain Baru";
     const codeInput = document.getElementById('join-code-input').value.trim();

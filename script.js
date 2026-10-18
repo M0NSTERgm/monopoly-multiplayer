@@ -4,7 +4,7 @@
 const firebaseConfig = {
   apiKey: "AIzaSyBV5K_7j19i9ghtTsYYtefxWL2Sl_xQTcc",
   authDomain: "monopoly-multiplayer-ad825.firebaseapp.com",
-  databaseURL: "https://monopoly-multiplayer-ad825-default-rtdb.asia-southeast1.firebasedatabase.app", // <-- Sesuaikan dengan URL regional ini
+  databaseURL: "https://monopoly-multiplayer-ad825-default-rtdb.asia-southeast1.firebasedatabase.app/", // <-- Pastikan ada asia-southeast1
   projectId: "monopoly-multiplayer-ad825",
   storageBucket: "monopoly-multiplayer-ad825.firebasestorage.app",
   messagingSenderId: "213475983234",
@@ -12,7 +12,6 @@ const firebaseConfig = {
   measurementId: "G-ENCCHST6SC"
 };
 
-// Inisialisasi Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 

@@ -18,6 +18,10 @@ const db = firebase.database();
 // ==========================================
 // 1. SISTEM LOBBY & PEMAIN
 // ==========================================
+function hasilkanKodeRoom() {
+    // Menghasilkan 8 digit angka acak (10000000 - 99999999)
+    return Math.floor(10000000 + Math.random() * 90000000).toString();
+}
 let activeRoomCode = null;
 let isHostPlayer = false;
 
@@ -77,11 +81,7 @@ function buatRoom() {
     });
 }
 
-function hasilkanKodeRoom() {
-    // Menghasilkan 8 digit angka acak (10000000 - 99999999)
-    return Math.floor(10000000 + Math.random() * 90000000).toString();
-}
-
+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
 function gabungRoom() {
     const nameInput = document.getElementById('player-name-input').value.trim() || "Pemain Baru";
     const codeInput = document.getElementById('join-code-input').value.trim();

@@ -38,10 +38,6 @@ let daduTerakhir = 0;
 const HARGA_RUKO = 250000;
 const HARGA_HOTEL = 500000;
 
-function hasilkanKodeRoom() {
-    return Math.floor(10000000 + Math.random() * 90000000).toString();
-}
-
 function buatRoom() {
     const nameInput = document.getElementById('player-name-input').value.trim() || "Pemain 1";
     activeRoomCode = hasilkanKodeRoom();
@@ -65,7 +61,20 @@ function buatRoom() {
         }
     ];
 
-    tampilkanRuangTunggu();
+    // Simpan data room ke Firebase
+    db.ref('rooms/' + activeRoomCode).set({
+        status: "waiting",
+        host: nameInput,
+        players: paraPemain,
+        giliranId: 0
+    }).then(() => {
+        console.log("Room berhasil tersimpan di Firebase:", activeRoomCode);
+        tampilkanRuangTunggu();
+        pantauPerubahanRoom(); // Aktifkan listener real-time
+    }).catch((err) => {
+        console.error("Gagal menyimpan room:", err);
+        alert("Gagal terhubung ke Firebase!");
+    });
 }
 
 function gabungRoom() {
@@ -77,28 +86,67 @@ function gabungRoom() {
         return;
     }
 
-    activeRoomCode = codeInput;
-    isHostPlayer = false;
+    // Cek keberadaan room di Firebase sebelum bergabung
+    db.ref('rooms/' + codeInput).get().then((snapshot) => {
+        if (!snapshot.exists()) {
+            alert("Room tidak ditemukan! Periksa kembali kode room.");
+            return;
+        }
 
-    paraPemain = [
-        {
-            id: 0,
+        const roomData = snapshot.val();
+        if (roomData.status !== "waiting") {
+            alert("Permainan di room ini sudah dimulai!");
+            return;
+        }
+
+        activeRoomCode = codeInput;
+        isHostPlayer = false;
+
+        const newPlayerId = roomData.players ? roomData.players.length : 0;
+        const pionIndex = newPlayerId % PILIHAN_PION.length;
+
+        const pemainBaru = {
+            id: newPlayerId,
             nama: nameInput,
             uang: 10000000,
             posisi: 0,
-            warna: PILIHAN_PION[0].warna,
-            pionImg: PILIHAN_PION[0].img,
-            rukoImg: PILIHAN_PION[0].rukoImg,
-            hotelImg: PILIHAN_PION[0].hotelImg,
+            warna: PILIHAN_PION[pionIndex].warna,
+            pionImg: PILIHAN_PION[pionIndex].img,
+            rukoImg: PILIHAN_PION[pionIndex].rukoImg,
+            hotelImg: PILIHAN_PION[pionIndex].hotelImg,
             isHost: false,
             diPenjara: false,
             sudahLewatStart: false,
             jumlahLewatStart: 0,
             kartuBebasPenjara: 0
-        }
-    ];
+        };
 
-    tampilkanRuangTunggu();
+        // Tambahkan pemain baru ke daftar pemain di Firebase
+        const updatedPlayers = roomData.players || [];
+        updatedPlayers.push(pemainBaru);
+
+        db.ref('rooms/' + activeRoomCode + '/players').set(updatedPlayers).then(() => {
+            paraPemain = updatedPlayers;
+            tampilkanRuangTunggu();
+            pantauPerubahanRoom();
+        });
+    }).catch((err) => {
+        console.error("Gagal gabung room:", err);
+        alert("Gagal terhubung ke server.");
+    });
+}
+
+// Fungsi pendukung untuk menyinkronkan data antar-pemain secara otomatis
+function pantauPerubahanRoom() {
+    db.ref('rooms/' + activeRoomCode).on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (data && data.players) {
+            paraPemain = data.players;
+            if (typeof perbaruiTampilanLobby === 'function') {
+                perbaruiTampilanLobby();
+            }
+        }
+    });
 }
 
 function tambahPemainManual() {

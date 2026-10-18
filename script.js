@@ -77,6 +77,11 @@ function buatRoom() {
     });
 }
 
+function hasilkanKodeRoom() {
+    // Menghasilkan 8 digit angka acak (10000000 - 99999999)
+    return Math.floor(10000000 + Math.random() * 90000000).toString();
+}
+
 function gabungRoom() {
     const nameInput = document.getElementById('player-name-input').value.trim() || "Pemain Baru";
     const codeInput = document.getElementById('join-code-input').value.trim();
